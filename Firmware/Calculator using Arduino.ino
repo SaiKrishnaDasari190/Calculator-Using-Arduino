@@ -2,120 +2,205 @@
 #include <Keypad.h>
 const byte ROWS = 4;
 const byte COLS = 4;
-//char operator[15]; 
+//char Operator[15]; 
 
 char keys[ROWS][COLS] = {
 
-  {'7','8','9','D'},
+                          {'7','8','9','D'},
 
-  {'4','5','6','C'},
+                          {'4','5','6','C'},
 
-  {'1','2','3','B'},
+                          {'1','2','3','B'},
 
-  {'*','0','#','A'}
+                          {'*','0','#','A'}
 
-};
+                        };
 
-byte rowPins[ROWS] = {0, 1, 2, 3}; 
-byte colPins[COLS] = {4, 5, 6, 7};
+byte rowPins[ROWS] = {A0, A1, A2, A3}; 
+byte colPins[COLS] = {1, 2, 3, 4};
 
-Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
+Keypad kpd = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
 
-LiquidCrystal lcd(A0, A1, A2, A3, A4, A5);
-long Operand1,Operand2;
-int Key_Operand();
+LiquidCrystal lcd(13, 12, 11, 10, 9, 8);
+long operand1,operand2,final_Result;
 int operand;
-char key ;
+char key,Operator;
+bool operater_Notpressed,result;
+void key_Pressed();
+void operand_Calculation();
+void result_Calculation();
+
 void setup() 
 {
+  operand1=0;
+  operand2=0;
+  operand=0;
+  final_Result=0;
+  operater_Notpressed = true;
+  result = false;
   lcd.begin(16,2);
   lcd.print("Arduino Calculator");
   lcd.setCursor(0,1);
   lcd.print("By Sai Krishna");
   delay(2000);
-  
+  lcd.clear();
 }
 
 void loop()
 {
-lcd.clear();
-int key = keypad.getKey();
-if(key!=NO_KEY)
-{
-  lcd.print("The Pressed Key : ");
-  Key_Operand();
-  lcd.setCursor(0,1);
-  lcd.print(operand);
-}
+  key = kpd.getKey();
+  if(key!=NO_KEY)
+  {
+    key_Pressed();
+    operand_Calculation();
+  }
+  if(result==true)
+  {
+    result_Calculation();
+  }
 }
 
-int Key_Operand()
+void key_Pressed()
 {
-  if(key=="1")
-  {
-    operand = 1;
+  if(key=="0"||key=="1"||key=="2"||key=="3"||key=="4"||key=="5"||key=="6"||key=="7"||key=="8"||key=="9")
+  {  
+    operater_Notpressed = true;
+    result = false; 
+    if(key=="1")
+    {
+      operand = 1;
+    }
+    if(key=="2")
+    {
+      operand = 2;
+    }
+    if(key=="3")
+    {
+      operand = 3;
+    }
+    if(key=="4")
+    {
+      operand = 4;
+    }
+    if(key=="5")
+    {
+      operand = 5;
+    } 
+    if(key=="6")
+    {
+      operand = 6;
+    }
+    if(key=="7")
+    {
+      operand = 7;
+    } 
+    if(key=="8")
+    {
+      operand = 8;
+    }
+    if(key=="9")
+    {
+      operand = 9;
+    }
+    if(key=="0")
+    {
+      operand = 0;
+    }
+    lcd.print(operand);
   }
-  if(key=="2")
+  
+  else if(key=="A"||key=="B"||key=="C"||key=="D")
   {
-    operand = 2;
+    operater_Notpressed = false;
+    result = false;    
+    if(key=="A")
+    {
+      Operator="+";
+    }
+    if(key=="B")
+    {
+      Operator="-";
+    }
+    if(key=="C")
+    {
+      Operator="x";
+    }
+    if(key=="D")
+    {
+      Operator="/";
+    }
+    lcd.print(Operator);   
   }
-  if(key=="3")
+  
+  else if(key=="#")
   {
-    operand = 3;
+    operater_Notpressed = true;    
+    result = true;
+    lcd.print("=");
   }
-  if(key=="4")
+  else
   {
-    operand = 4;
-  }
-  if(key=="5")
-  {
-    operand = 5;
-  } 
-  if(key=="6")
-  {
-    operand = 6;
-  }
-  if(key=="7")
-  {
-    operand = 7;
-  } 
-  if(key=="8")
-  {
-    operand = 8;
-  }
-  if(key=="9")
-  {
-    operand = 9;
-  }
-  if(key=="0")
-  {
-    operand = 0;
-  }      
+    operater_Notpressed = true;
+    result = false;    
+    reset(); //Clear all the number that user entered
+    lcd.clear();
+  }    
 }
-/*void Key_Operator()
+
+void operand_Calculation()
 {
-  if(key=="A")
+  if(operater_Notpressed == true)
   {
-    operator="Addition";
+    operand1=(operand1*10)+operand;
   }
-  if(key=="B")
+  else
   {
-    operator="Subtraction";
+    operand2=(operand2*10)+operand;
   }
-  if(key=="C")
-  {
-    operator="Multiplication";
-  }
-  if(key=="D")
-  {
-    operator="Division";
-  }
-  if(key=="#")
-  {
-    operator="=";
-  }
-  if(key=="*")
-  {
-    operator="clear";
-  }
-}*/
+
+}
+void result_Calculation()
+{
+    if(Operator=="+")
+    {
+      final_Result = operand1 + operand2;
+    }
+    if(Operator=="-")
+    {
+      final_Result = operand1 - operand2;
+    }
+    if(Operator=="x")
+    {
+      final_Result = operand1 * operand2;
+    }
+    if(Operator=="/")
+    {
+      final_Result = operand1 / operand2;
+    }
+    lcd.setCursor(0, 1);
+    lcd.print(final_Result); 
+}
+void reset()
+{
+  operand1=0;
+  operand2=0;
+  operand=0;
+  final_Result=0;
+  operater_Notpressed = true;
+  result = false;
+}
+/*
+void DisplayResult()
+{
+   // set the cursor to column 0, line 1 and display the results
+  lcd.setCursor(0, 0);  
+  lcd.print(operand1); lcd.print(Operator); lcd.print(operand2); 
+  
+  if (result==true)
+  {lcd.print(" ="); lcd.print(final_Result);}
+
+   // set the cursor to column 0, line 1 and display the result
+  lcd.setCursor(0, 1);  
+  lcd.print(final_Result);
+}
+*/
